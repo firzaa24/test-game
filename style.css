@@ -5,7 +5,6 @@ body {
 
 #gameArea {
   display: grid;
-  grid-template-columns: repeat(6, 60px);
   gap: 10px;
   justify-content: center;
   margin-top: 20px;
