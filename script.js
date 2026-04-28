@@ -1,13 +1,7 @@
 const gameArea = document.getElementById('gameArea');
-const scoreDisplay = document.getElementById('score');
-let score = 0;
-
-function generateColors() {
-  const baseR = Math.floor(Math.random() * 200);
-  const baseG = Math.floor(Math.random() * 200);
   const baseB = Math.floor(Math.random() * 200);
 
-  const diff = Math.max(5, 30 - score);
+  const diff = Math.max(3, 40 - level * 3); // makin kecil → makin susah
 
   return {
     normal: `rgb(${baseR}, ${baseG}, ${baseB})`,
@@ -15,13 +9,34 @@ function generateColors() {
   };
 }
 
+function startTimer() {
+  clearInterval(timer);
+  timeLeft = Math.max(2, 6 - Math.floor(level / 2));
+  timerDisplay.textContent = timeLeft;
+
+  timer = setInterval(() => {
+    timeLeft--;
+    timerDisplay.textContent = timeLeft;
+
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      alert('Time Up! Game Over');
+      resetGame();
+    }
+  }, 1000);
+}
+
 function createBoard() {
   gameArea.innerHTML = '';
 
-  const { normal, different } = generateColors();
-  const differentIndex = Math.floor(Math.random() * 36);
+  const size = getGridSize();
+  gameArea.style.gridTemplateColumns = `repeat(${size}, 60px)`;
 
-  for (let i = 0; i < 36; i++) {
+  const totalTiles = size * size;
+  const { normal, different } = generateColors();
+  const differentIndex = Math.floor(Math.random() * totalTiles);
+
+  for (let i = 0; i < totalTiles; i++) {
     const tile = document.createElement('div');
     tile.classList.add('tile');
     tile.style.backgroundColor = i === differentIndex ? different : normal;
@@ -29,13 +44,13 @@ function createBoard() {
     tile.addEventListener('click', () => {
       if (i === differentIndex) {
         score++;
-        scoreDisplay.textContent = score;
+        level++;
+        updateUI();
         createBoard();
+        startTimer();
       } else {
         alert('Wrong! Game Over');
-        score = 0;
-        scoreDisplay.textContent = score;
-        createBoard();
+        resetGame();
       }
     });
 
@@ -43,4 +58,20 @@ function createBoard() {
   }
 }
 
+function updateUI() {
+  scoreDisplay.textContent = score;
+  levelDisplay.textContent = level;
+}
+
+function resetGame() {
+  score = 0;
+  level = 1;
+  updateUI();
+  createBoard();
+  startTimer();
+}
+
+// init
+updateUI();
 createBoard();
+startTimer();
